@@ -1,0 +1,3 @@
+/home/fias/Coding/Clowder/build/CMakeFiles/Clowder.dir
+/home/fias/Coding/Clowder/build/CMakeFiles/edit_cache.dir
+/home/fias/Coding/Clowder/build/CMakeFiles/rebuild_cache.dir

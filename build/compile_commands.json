@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/fias/Coding/Clowder/build",
+  "command": "/usr/bin/c++   -g -std=gnu++11 -o CMakeFiles/Clowder.dir/src/Main.cpp.o -c /home/fias/Coding/Clowder/src/Main.cpp",
+  "file": "/home/fias/Coding/Clowder/src/Main.cpp",
+  "output": "CMakeFiles/Clowder.dir/src/Main.cpp.o"
+}
+]
