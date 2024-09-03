@@ -1,8 +1,18 @@
+CC = g++
+LANG_STD = -std=c++17
+COMPILER_FLAGS = -Wall -Wfatal-errors
+INCLUDE_PATH = -I"./libs/"
+SRC_FILES = src/*.cpp \
+			src/Game/*.cpp \
+			src/Logger/*.cpp
+LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -llua5.3
+OBJ_NAME = clowder
+
 build:
-	g++ -Wall -I"./libs/" -std=c++17 src/*.cpp -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -llua5.3 -o clowder;
+	$(CC) $(COMPILER_FLAGS) $(INCLUDE_PATH) $(LANG_STD) $(SRC_FILES) $(LINKER_FLAGS) -o $(OBJ_NAME);
 
 run:
-	./clowder
+	./$(OBJ_NAME)
 
 clean:
-	rm clowder
+	rm $(OBJ_NAME)

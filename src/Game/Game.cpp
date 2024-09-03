@@ -1,4 +1,3 @@
-#include "Game.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keycode.h>
@@ -10,7 +9,8 @@
 #include <iostream>
 #include <ostream>
 #include <glm/glm.hpp>
-#include "Logger.h"
+#include "Game.h"
+#include "../Logger/Logger.h"
 
 Game::Game()
 {
