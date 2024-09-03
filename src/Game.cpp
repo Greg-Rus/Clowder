@@ -63,7 +63,7 @@ glm::vec2 playerVelocity;
 void Game::Setup()
 {
   playerPositoin = glm::vec2(10.0, 20.0);
-  playerVelocity = glm::vec2(0.5, 0.0);
+  playerVelocity = glm::vec2(0.0, 0.0);
 }
 
 void Game::Run()
@@ -87,6 +87,7 @@ void Game::Destroy()
 void Game::ProcessInput()
 {
   SDL_Event sdlEvent;
+  float playerSpeed = 50.0;
   while (SDL_PollEvent(&sdlEvent))
   {
     switch (sdlEvent.type)
@@ -99,6 +100,46 @@ void Game::ProcessInput()
       {
         isRunning = false;
       }
+      if (sdlEvent.key.repeat == 0)
+      {
+        // Adjust the velocity
+        switch (sdlEvent.key.keysym.sym)
+        {
+        case SDLK_UP:
+          playerVelocity.y -= playerSpeed;
+          break;
+        case SDLK_DOWN:
+          playerVelocity.y += playerSpeed;
+          break;
+        case SDLK_LEFT:
+          playerVelocity.x -= playerSpeed;
+          break;
+        case SDLK_RIGHT:
+          playerVelocity.x += playerSpeed;
+          break;
+        }
+      }
+      break;
+    case SDL_KEYUP:
+      if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.repeat == 0)
+      {
+        // Adjust the velocity
+        switch (sdlEvent.key.keysym.sym)
+        {
+        case SDLK_UP:
+          playerVelocity.y += playerSpeed;
+          break;
+        case SDLK_DOWN:
+          playerVelocity.y -= playerSpeed;
+          break;
+        case SDLK_LEFT:
+          playerVelocity.x += playerSpeed;
+          break;
+        case SDLK_RIGHT:
+          playerVelocity.x -= playerSpeed;
+          break;
+        }
+      }
       break;
     }
   }
@@ -106,13 +147,19 @@ void Game::ProcessInput()
 
 void Game::Update()
 {
-  millisecondsPreviousFrame = SDL_GetTicks();
-  while (!SDL_TICKS_PASSED(SDL_GetTicks(), millisecondsPreviousFrame + MILLISECONDS_PER_FRAME))
+  int timeToWait = MILLISECONDS_PER_FRAME - (SDL_GetTicks() - millisecondsPreviousFrame);
+  if (timeToWait > 0 && timeToWait <= MILLISECONDS_PER_FRAME)
   {
-    //wait
+    SDL_Delay(timeToWait);
   }
 
-  playerPositoin += playerVelocity;
+  float deltaTime = (SDL_GetTicks() - millisecondsPreviousFrame) / 1000.0;
+
+  millisecondsPreviousFrame = SDL_GetTicks();
+
+  glm::vec2 scaledVelocity = playerVelocity;
+  scaledVelocity *= deltaTime;
+  playerPositoin += scaledVelocity;
 }
 
 void Game::Render()
