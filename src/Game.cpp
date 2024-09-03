@@ -10,20 +10,24 @@
 #include <iostream>
 #include <ostream>
 #include <glm/glm.hpp>
+#include "Logger.h"
 
 Game::Game()
 {
   isRunning = false;
-  std::cout << "Game Constructor Called!" << std::endl;
+  Logger::Log("Game Constructor Called!");
 }
 
-Game::~Game() { std::cout << "Game Destructor Called!" << std::endl; }
+Game::~Game() 
+{ 
+  Logger::Log("Game Destructor Called!"); 
+}
 
 void Game::Initialize()
 {
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
   {
-    std::cerr << "Failed to initialize SDL";
+    Logger::Error("Failed to initialize SDL");
     return;
   };
   SDL_DisplayMode displayMode;
@@ -41,20 +45,20 @@ void Game::Initialize()
 
   if (!window)
   {
-    std::cerr << "Failed to create SDL window";
+    Logger::Error("Failed to create SDL window");
     return;
   }
 
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
   if (!renderer)
   {
-    std::cerr << "Failed to create SDL renderer";
+    Logger::Error("Failed to create SDL renderer");
     return;
   }
 
   // SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
   isRunning = true;
-  std::cout << "Game Initialized!" << std::endl;
+  Logger::Log("Game Initialized!");
 }
 
 glm::vec2 playerPositoin;
@@ -64,6 +68,7 @@ void Game::Setup()
 {
   playerPositoin = glm::vec2(10.0, 20.0);
   playerVelocity = glm::vec2(0.0, 0.0);
+  Logger::Error("Test Error");
 }
 
 void Game::Run()
@@ -81,7 +86,7 @@ void Game::Destroy()
 {
   SDL_DestroyWindow(window);
   SDL_DestroyRenderer(renderer);
-  std::cout << "Game Destroy!" << std::endl;
+  Logger::Log("Game Destroy!");
 }
 
 void Game::ProcessInput()

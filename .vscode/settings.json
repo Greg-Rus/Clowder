@@ -118,6 +118,10 @@
     "streambuf": "cpp",
     "cinttypes": "cpp",
     "typeinfo": "cpp",
-    "variant": "cpp"
+    "variant": "cpp",
+    "charconv": "cpp",
+    "set": "cpp",
+    "format": "cpp",
+    "span": "cpp"
   }
 }
