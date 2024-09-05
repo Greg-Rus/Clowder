@@ -11,6 +11,7 @@
 #include <glm/glm.hpp>
 #include "Game.h"
 #include "../Logger/Logger.h"
+#include "../ECS/ECS.h"
 
 Game::Game()
 {
