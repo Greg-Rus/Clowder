@@ -4,11 +4,12 @@ COMPILER_FLAGS = -Wall -Wfatal-errors
 INCLUDE_PATH = -I"./libs/"
 SRC_FILES = src/*.cpp \
 			src/Game/*.cpp \
-			src/Logger/*.cpp
+			src/Logger/*.cpp \
+			src/ECS/*.cpp
 LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -llua5.3
 OBJ_NAME = clowder
 
-build:
+compile:
 	$(CC) $(COMPILER_FLAGS) $(INCLUDE_PATH) $(LANG_STD) $(SRC_FILES) $(LINKER_FLAGS) -o $(OBJ_NAME);
 
 run:

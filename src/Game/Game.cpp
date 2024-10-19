@@ -62,13 +62,8 @@ void Game::Initialize()
   Logger::Log("Game Initialized!");
 }
 
-glm::vec2 playerPositoin;
-glm::vec2 playerVelocity;
-
 void Game::Setup()
 {
-  playerPositoin = glm::vec2(10.0, 20.0);
-  playerVelocity = glm::vec2(0.0, 0.0);
   Logger::Error("Test Error");
 }
 
@@ -93,7 +88,6 @@ void Game::Destroy()
 void Game::ProcessInput()
 {
   SDL_Event sdlEvent;
-  float playerSpeed = 50.0;
   while (SDL_PollEvent(&sdlEvent))
   {
     switch (sdlEvent.type)
@@ -105,46 +99,6 @@ void Game::ProcessInput()
       if (sdlEvent.key.keysym.sym == SDLK_ESCAPE)
       {
         isRunning = false;
-      }
-      if (sdlEvent.key.repeat == 0)
-      {
-        // Adjust the velocity
-        switch (sdlEvent.key.keysym.sym)
-        {
-        case SDLK_UP:
-          playerVelocity.y -= playerSpeed;
-          break;
-        case SDLK_DOWN:
-          playerVelocity.y += playerSpeed;
-          break;
-        case SDLK_LEFT:
-          playerVelocity.x -= playerSpeed;
-          break;
-        case SDLK_RIGHT:
-          playerVelocity.x += playerSpeed;
-          break;
-        }
-      }
-      break;
-    case SDL_KEYUP:
-      if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.repeat == 0)
-      {
-        // Adjust the velocity
-        switch (sdlEvent.key.keysym.sym)
-        {
-        case SDLK_UP:
-          playerVelocity.y += playerSpeed;
-          break;
-        case SDLK_DOWN:
-          playerVelocity.y -= playerSpeed;
-          break;
-        case SDLK_LEFT:
-          playerVelocity.x += playerSpeed;
-          break;
-        case SDLK_RIGHT:
-          playerVelocity.x -= playerSpeed;
-          break;
-        }
       }
       break;
     }
@@ -159,13 +113,9 @@ void Game::Update()
     SDL_Delay(timeToWait);
   }
 
-  float deltaTime = (SDL_GetTicks() - millisecondsPreviousFrame) / 1000.0;
+  //float deltaTime = (SDL_GetTicks() - millisecondsPreviousFrame) / 1000.0;
 
   millisecondsPreviousFrame = SDL_GetTicks();
-
-  glm::vec2 scaledVelocity = playerVelocity;
-  scaledVelocity *= deltaTime;
-  playerPositoin += scaledVelocity;
 }
 
 void Game::Render()
@@ -173,18 +123,7 @@ void Game::Render()
   SDL_SetRenderDrawColor(renderer, 10, 100, 50, 255);
   SDL_RenderClear(renderer);
 
-  SDL_Surface *surface = IMG_Load("./assets/images/tank-tiger-right.png");
-  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-  SDL_FreeSurface(surface);
-
-  SDL_Rect destinationRect = {static_cast<int>(playerPositoin.x),
-                              static_cast<int>(playerPositoin.y),
-                              32,
-                              32};
-
-  SDL_RenderCopy(renderer, texture, NULL, &destinationRect);
-
-  SDL_DestroyTexture(texture);
+  
 
   SDL_RenderPresent(renderer);
 }

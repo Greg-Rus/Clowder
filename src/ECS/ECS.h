@@ -14,7 +14,9 @@ protected:
 template <typename T>
 class Component : public IComponent
 {
-    static int GetId(){
+public:
+    static int GetId()
+    {
         static auto id = nextId++;
         return id;
     }
@@ -42,9 +44,9 @@ public:
     void AddEntityToSystem(Entity entity);
     void RemoveEntityFromSystem(Entity entity);
     std::vector<Entity> GetSystemEntities() const;
-    Signature &GetComponentSignature() const;
+    const Signature& GetComponentSignature() const;
 
-    template <typename T>
+    template <typename TComponent>
     void RequireComponent();
 };
 
@@ -52,9 +54,9 @@ class Registry
 {
 };
 
-template <typename T>
+template <typename TComponent>
 void System::RequireComponent()
 {
-    const auto componentId = Component<T>::GetId();
+    const auto componentId = Component<TComponent>::GetId();
     componentSignature.set(componentId);
 }
