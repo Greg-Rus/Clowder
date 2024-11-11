@@ -39,7 +39,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "Clowder::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Clowder-Debug-17376dc1b6e840980f2a.json",
+					"jsonFile" : "target-Clowder-Debug-25ee4775f06089673207.json",
 					"name" : "Clowder",
 					"projectIndex" : 0
 				}
@@ -55,6 +55,6 @@
 	"version" : 
 	{
 		"major" : 2,
-		"minor" : 3
+		"minor" : 7
 	}
 }
