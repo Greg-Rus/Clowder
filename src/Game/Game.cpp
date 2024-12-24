@@ -12,10 +12,13 @@
 #include "Game.h"
 #include "../Logger/Logger.h"
 #include "../ECS/ECS.h"
+#include "../Components/TransformComponent.h"
+#include "../Components/RigidBodyComponent.h"
 
 Game::Game()
 {
   isRunning = false;
+  registry = std::make_unique<Registry>();
   Logger::Log("Game Constructor Called!");
 }
 
@@ -64,7 +67,15 @@ void Game::Initialize()
 
 void Game::Setup()
 {
-  Logger::Error("Test Error");
+  Entity tank = registry->CreateEntity();
+  registry->AddComponent<TransformComponent>(tank,glm::vec2(10.0, 30.0),glm::vec2(1.0, 1.0), 0.0);
+  registry->AddComponent<RigidBodyComponent>(tank, glm::vec2(50.0, 0.0));
+
+  Entity truck = registry->CreateEntity();
+  truck.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0),glm::vec2(1.0, 1.0), 0.0);
+  truck.AddComponent<RigidBodyComponent>(glm::vec2(50.0, 0.0));
+  truck.RemoveComponent<RigidBodyComponent>();
+  Logger::Log("Setup");
 }
 
 void Game::Run()
