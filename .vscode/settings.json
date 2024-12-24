@@ -122,6 +122,11 @@
     "charconv": "cpp",
     "set": "cpp",
     "format": "cpp",
-    "span": "cpp"
+    "span": "cpp",
+    "chrono": "cpp",
+    "expected": "cpp",
+    "ratio": "cpp",
+    "text_encoding": "cpp",
+    "typeindex": "cpp"
   }
 }
