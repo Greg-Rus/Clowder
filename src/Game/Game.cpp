@@ -68,11 +68,13 @@ void Game::Initialize()
 void Game::Setup()
 {
   registry->AddSystem<MovementSystem>();
+  registry->AddSystem<RenderSystem>();
 
   Entity tank = registry->CreateEntity();
 
   tank.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0),glm::vec2(1.0, 1.0), 0.0);
   tank.AddComponent<RigidBodyComponent>(glm::vec2(50.0, 20.0));
+  tank.AddComponent<SpriteComponent>(50, 50);
 
   Logger::Log("Setup");
 }
@@ -134,7 +136,9 @@ void Game::Update()
 void Game::Render()
 {
   SDL_SetRenderDrawColor(renderer, 10, 100, 50, 255);
-  SDL_RenderClear(renderer);  
+  SDL_RenderClear(renderer);
+
+  registry->GetSystem<RenderSystem>().Update(renderer);
 
   SDL_RenderPresent(renderer);
 }
