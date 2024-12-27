@@ -1,15 +1,15 @@
 {
   "version": "0.2.0",
-  "configurations": [
+  "configurations": [    
     {
       "name": "C/C++ Runner: Debug Session",
       "type": "cppdbg",
       "request": "launch",
       "args": [],
       "stopAtEntry": false,
-      "externalConsole": false,
-      "cwd": "/home/fias/Coding/Clowder/src",
-      "program": "/home/fias/Coding/Clowder/src/build/Debug/outDebug",
+      "externalConsole": true,
+      "cwd": "${workspaceFolder}",
+      "program": "/home/fias/Coding/Clowder/clowder",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

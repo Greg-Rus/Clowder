@@ -61,7 +61,7 @@ public:
     template <typename TComponent, typename ...TArgs> void AddComponent(TArgs&& ...args);
     template <typename T> void RemoveComponent();
     template <typename T>bool HasComponent() const;
-    template <typename T> T& GetComponent() const;
+    template <typename T> T& GetComponent();
 
     class Registry* registry;
 };
@@ -163,7 +163,7 @@ class Registry
         template <typename TComponent, typename ...TArgs> void AddComponent(Entity entity, TArgs&& ...args);
         template <typename T> void RemoveComponent(Entity entity);
         template <typename T>bool HasComponent(Entity entity) const;
-        template <typename T> T& GetComponent(Entity entity) const;
+        template <typename T> T& GetComponent(Entity entity);
 
         template <typename TSystem, typename ...TArgs> void AddSystem(TArgs&& ...args);
         template <typename TSystem> void RemoveSystem(); 
@@ -178,7 +178,7 @@ template <typename TSystem, typename ...TArgs>
 void Registry::AddSystem(TArgs&& ...args)
 {
     std::shared_ptr<TSystem> newSystem = std::make_unique<TSystem>(std::forward<TArgs>(args)...);
-    systems.insert(std::make_pair(std::type_index(typeid(TSystem)),newSystem));
+    systems.insert(std::make_pair(std::type_index(typeid(TSystem)), newSystem));
 }
 
 template <typename TSystem> 
@@ -217,7 +217,7 @@ template <typename TComponent, typename ...TArgs> void Registry::AddComponent(En
     //In case we are adding a completely new, unknown component
     if(componentId >= static_cast<int>(componentPools.size()))
     {
-        componentPools.resize(componentId + 1,nullptr);
+        componentPools.resize(componentId + 1, nullptr);
     }
 
     if(!componentPools[componentId])
@@ -239,7 +239,8 @@ template <typename TComponent, typename ...TArgs> void Registry::AddComponent(En
 
     entityComponentSignatures[entityId].set(componentId);
 
-    Logger::Log("Component id = " + std::to_string(componentId) + " was added to entity id = " + std::to_string(entityId));
+    Logger::Log("Component id = " + std::to_string(componentId) + 
+    " was added to entity id = " + std::to_string(entityId));
 }
 
 template <typename TComponent>
@@ -258,16 +259,17 @@ bool Registry::HasComponent(Entity entity) const
 {
     const auto componentId = Component<TComponent>::GetId();
     const auto entityId = entity.GetId();
+    bool result = entityComponentSignatures[entityId].test(componentId);
 
     return entityComponentSignatures[entityId].test(componentId);
 }
 
 template <typename TComponent> 
-TComponent& Registry::GetComponent(Entity entity) const
+TComponent& Registry::GetComponent(Entity entity)
 {
     const auto componentId = Component<TComponent>::GetId();
     const auto entityId = entity.GetId();
-    auto pool = std::static_pointer_cast<Pool<TComponent>>(componentPools[componentId]);
+    std::shared_ptr<Pool<TComponent>> pool = std::static_pointer_cast<Pool<TComponent>>(componentPools[componentId]);
     return pool->Get(entityId);
 }
 
@@ -290,7 +292,7 @@ bool Entity::HasComponent() const
 }
 
 template <typename TComponent> 
-TComponent& Entity::GetComponent() const
+TComponent& Entity::GetComponent()
 {
     return registry->GetComponent<TComponent>(*this);
 }
