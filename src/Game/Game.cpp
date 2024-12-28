@@ -19,6 +19,8 @@ Game::Game()
 {
   isRunning = false;
   registry = std::make_unique<Registry>();
+  assetStore = std::make_unique<AssetStore>();
+
   Logger::Log("Game Constructor Called!");
 }
 
@@ -65,17 +67,35 @@ void Game::Initialize()
   Logger::Log("Game Initialized!");
 }
 
-void Game::Setup()
+void Game::LoadLevel(int level)
 {
   registry->AddSystem<MovementSystem>();
   registry->AddSystem<RenderSystem>();
+
+  assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
+  assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
+  assetStore->AddTexture(renderer, "jungle-map", "./assets/images/jungle.png");
+
+
+  //TODO: Load tile map.
 
   Entity tank = registry->CreateEntity();
 
   tank.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0),glm::vec2(1.0, 1.0), 0.0);
   tank.AddComponent<RigidBodyComponent>(glm::vec2(50.0, 20.0));
-  tank.AddComponent<SpriteComponent>(50, 50);
+  tank.AddComponent<SpriteComponent>("tank-image", 32, 32);
 
+  Entity truck = registry->CreateEntity();
+
+  truck.AddComponent<TransformComponent>(glm::vec2(50.0, 100.0),glm::vec2(1.0, 1.0), 0.0);
+  truck.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 50.0));
+  truck.AddComponent<SpriteComponent>("truck-image", 32, 32);
+}
+
+void Game::Setup()
+{
+
+  LoadLevel(1);
   Logger::Log("Setup");
 }
 
@@ -138,7 +158,7 @@ void Game::Render()
   SDL_SetRenderDrawColor(renderer, 10, 100, 50, 255);
   SDL_RenderClear(renderer);
 
-  registry->GetSystem<RenderSystem>().Update(renderer);
+  registry->GetSystem<RenderSystem>().Update(renderer, assetStore);
 
   SDL_RenderPresent(renderer);
 }

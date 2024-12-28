@@ -2,6 +2,7 @@
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_video.h>
 #include "../ECS/ECS.h"
+#include "../AssetStore/AssetStore.h"
 
 const int FPS = 60;
 const int MILLISECONDS_PER_FRAME = 1000 / FPS;
@@ -15,6 +16,7 @@ private:
     SDL_Renderer *renderer;
 
     std::unique_ptr<Registry> registry;
+    std::unique_ptr<AssetStore> assetStore;
 
 public:
     Game();
@@ -26,6 +28,7 @@ public:
     void Update();
     void Render();
     void Setup();
+    void LoadLevel(int level);
 
     int windowWidth;
     int windowHeight;
