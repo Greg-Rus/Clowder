@@ -14,6 +14,9 @@
 #include "../ECS/ECS.h"
 #include "../Components/CoreComponents.h"
 #include "../Systems/CoreSystems.h"
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 Game::Game()
 {
@@ -24,9 +27,9 @@ Game::Game()
   Logger::Log("Game Constructor Called!");
 }
 
-Game::~Game() 
-{ 
-  Logger::Log("Game Destructor Called!"); 
+Game::~Game()
+{
+  Logger::Log("Game Destructor Called!");
 }
 
 void Game::Initialize()
@@ -38,8 +41,8 @@ void Game::Initialize()
   };
   SDL_DisplayMode displayMode;
   SDL_GetCurrentDisplayMode(0, &displayMode);
-  windowWidth = 800;  // displayMode.w /2;
-  windowHeight = 600; // displayMode.h /2;
+  windowWidth = displayMode.w /2;
+  windowHeight = displayMode.h /2;
 
   window = SDL_CreateWindow(
       "Clowder Game Engine",
@@ -74,22 +77,64 @@ void Game::LoadLevel(int level)
 
   assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
   assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
-  assetStore->AddTexture(renderer, "jungle-map", "./assets/images/jungle.png");
+  assetStore->AddTexture(renderer, "jungle-map", "./assets/tilemaps/jungle.png");
 
-
-  //TODO: Load tile map.
+  LoadTileMap("./assets/tilemaps/jungle.map");
 
   Entity tank = registry->CreateEntity();
 
-  tank.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0),glm::vec2(1.0, 1.0), 0.0);
+  tank.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
   tank.AddComponent<RigidBodyComponent>(glm::vec2(50.0, 20.0));
   tank.AddComponent<SpriteComponent>("tank-image", 32, 32);
 
   Entity truck = registry->CreateEntity();
 
-  truck.AddComponent<TransformComponent>(glm::vec2(50.0, 100.0),glm::vec2(1.0, 1.0), 0.0);
+  truck.AddComponent<TransformComponent>(glm::vec2(50.0, 100.0), glm::vec2(1.0, 1.0), 0.0);
   truck.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 50.0));
   truck.AddComponent<SpriteComponent>("truck-image", 32, 32);
+}
+
+void Game::LoadTileMap(const std::string& tileMapPath)
+{
+  std::ifstream file(tileMapPath);
+  std::string line;
+  std::vector<std::vector<int>*> map;
+
+  while (std::getline(file, line))
+  {
+    std::vector<int>* newRow = new std::vector<int>();
+    std::string token;
+    std::istringstream tokenStream(line);
+    while (std::getline(tokenStream, token, ','))
+    {
+      int number = std::stoi(token);
+      newRow->push_back(number);
+    }
+    map.push_back(newRow);
+  }
+
+  file.close();
+  int tileSize = 32;
+  double tileScale = 2.0;
+  for (auto row = 0; row < map.size(); row++)
+  {
+    for (auto col = 0; col < map[row]->size(); col++)
+    {
+      int tileId = map[row]->at(col);
+      int mapRow = tileId * 0.1;
+      int mapCol = tileId - (mapRow * 10);
+      int tileX = col * tileSize;
+      int tileY = row * tileSize;
+      int srcRectX = mapCol * tileSize;
+      int srcRectY = mapRow * tileSize;
+      Logger::Log("Id: " + std::to_string(tileId) +
+        "X: " + std::to_string(srcRectX) + " Y: " + std::to_string(srcRectY));
+      
+      Entity tile = registry->CreateEntity();
+      tile.AddComponent<TransformComponent>(glm::vec2(tileX * tileScale, tileY * tileScale), glm::vec2(tileScale, tileScale), 0.0);
+      tile.AddComponent<SpriteComponent>("jungle-map", 32, 32, srcRectX, srcRectY);
+    }
+  }
 }
 
 void Game::Setup()

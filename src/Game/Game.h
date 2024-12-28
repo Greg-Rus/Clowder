@@ -29,6 +29,7 @@ public:
     void Render();
     void Setup();
     void LoadLevel(int level);
+    void LoadTileMap(const std::string& path);
 
     int windowWidth;
     int windowHeight;
