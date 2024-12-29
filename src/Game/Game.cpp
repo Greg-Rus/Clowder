@@ -85,13 +85,13 @@ void Game::LoadLevel(int level)
 
   tank.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
   tank.AddComponent<RigidBodyComponent>(glm::vec2(50.0, 20.0));
-  tank.AddComponent<SpriteComponent>("tank-image", 32, 32);
+  tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 2);
 
   Entity truck = registry->CreateEntity();
 
-  truck.AddComponent<TransformComponent>(glm::vec2(50.0, 100.0), glm::vec2(1.0, 1.0), 0.0);
-  truck.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 50.0));
-  truck.AddComponent<SpriteComponent>("truck-image", 32, 32);
+  truck.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
+  truck.AddComponent<RigidBodyComponent>(glm::vec2(50.0, 25.0));
+  truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 1);
 }
 
 void Game::LoadTileMap(const std::string& tileMapPath)
@@ -132,7 +132,7 @@ void Game::LoadTileMap(const std::string& tileMapPath)
       
       Entity tile = registry->CreateEntity();
       tile.AddComponent<TransformComponent>(glm::vec2(tileX * tileScale, tileY * tileScale), glm::vec2(tileScale, tileScale), 0.0);
-      tile.AddComponent<SpriteComponent>("jungle-map", 32, 32, srcRectX, srcRectY);
+      tile.AddComponent<SpriteComponent>("jungle-map", 32, 32, 0, srcRectX, srcRectY);
     }
   }
 }

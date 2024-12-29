@@ -3,6 +3,7 @@
 #include "../Components/CoreComponents.h"
 #include <SDL2/SDL.h>
 #include "../AssetStore/AssetStore.h"
+#include <algorithm>
 
 class RenderSystem : public System
 {
@@ -15,10 +16,33 @@ public:
 
     void Update(SDL_Renderer *renderer, std::unique_ptr<AssetStore>& assetStore)
     {
+        struct RenderableEntitiy{
+            TransformComponent transformComponent;
+            SpriteComponent spriteComponent;
+        };
+
+        std::vector<RenderableEntitiy> entities;
         for (auto entity : GetSystemEntities())
         {
-            const auto &transform = entity.GetComponent<TransformComponent>();
-            const auto &sprite = entity.GetComponent<SpriteComponent>();
+            RenderableEntitiy renderableEntitiy;
+            renderableEntitiy.transformComponent = entity.GetComponent<TransformComponent>();
+            renderableEntitiy.spriteComponent = entity.GetComponent<SpriteComponent>();
+            entities.emplace_back(renderableEntitiy);
+        }
+
+        std::sort(
+            entities.begin(), 
+            entities.end(), 
+            [](const RenderableEntitiy& a, const RenderableEntitiy& b)
+            {
+                return a.spriteComponent.zIndex < b.spriteComponent.zIndex;
+            }
+            );
+
+        for (auto entity : entities)
+        {
+            const auto &transform = entity.transformComponent;
+            const auto &sprite = entity.spriteComponent;
 
             SDL_Rect srcRect = sprite.srcRect;
 
