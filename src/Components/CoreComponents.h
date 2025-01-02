@@ -3,3 +3,4 @@
 #include "TransformComponent.h"
 #include "SpriteComponent.h"
 #include "AnimationComponent.h"
+#include "BoxColliderComponent.h"

@@ -75,6 +75,7 @@ void Game::LoadLevel(int level)
   registry->AddSystem<MovementSystem>();
   registry->AddSystem<RenderSystem>();
   registry->AddSystem<AnimationSystem>();
+  registry->AddSystem<CollisionSystem>();
 
   assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
   assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
@@ -87,7 +88,7 @@ void Game::LoadLevel(int level)
   LoadTileMap("./assets/tilemaps/jungle.map");
 
   Entity chopper = registry->CreateEntity();
-  chopper.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
+  chopper.AddComponent<TransformComponent>(glm::vec2(10.0, 100.0), glm::vec2(1.0, 1.0), 0.0);
   chopper.AddComponent<RigidBodyComponent>(glm::vec2(50.0, 20.0));
   chopper.AddComponent<SpriteComponent>("chopper-image", 32, 32, 2);
   chopper.AddComponent<AnimationComponent>(2,10, true);
@@ -97,17 +98,17 @@ void Game::LoadLevel(int level)
   radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 2);
   radar.AddComponent<AnimationComponent>(8,10, true);
 
-  // Entity tank = registry->CreateEntity();
+  Entity tank = registry->CreateEntity();
+  tank.AddComponent<TransformComponent>(glm::vec2(200.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
+  tank.AddComponent<RigidBodyComponent>(glm::vec2(-30, 0.0));
+  tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 2);
+  tank.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
 
-  // tank.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
-  // tank.AddComponent<RigidBodyComponent>(glm::vec2(50.0, 20.0));
-  // tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 2);
-
-  // Entity truck = registry->CreateEntity();
-
-  // truck.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
-  // truck.AddComponent<RigidBodyComponent>(glm::vec2(50.0, 25.0));
-  // truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 1);
+  Entity truck = registry->CreateEntity();
+  truck.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
+  truck.AddComponent<RigidBodyComponent>(glm::vec2(30.0, 0.0));
+  truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 1);
+  truck.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
 }
 
 void Game::LoadTileMap(const std::string& tileMapPath)
@@ -212,6 +213,7 @@ void Game::Update()
 
   registry->GetSystem<MovementSystem>().Update(deltaTime);
   registry->GetSystem<AnimationSystem>().Update();
+  registry->GetSystem<CollisionSystem>().Update();
   registry->Update();
 }
 
