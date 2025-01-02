@@ -4,6 +4,11 @@
       "cwd": "/home/fias/Coding/Clowder",
       "binaryPath": "/home/fias/Coding/Clowder/clowder",
       "binaryArgs": []
+    },
+    {
+      "cwd": "/home/fiasco/Code/Clowder",
+      "binaryPath": "/home/fiasco/Code/Clowder/clowder",
+      "binaryArgs": []
     }
   ],
   "C_Cpp_Runner.cCompilerPath": "gcc",

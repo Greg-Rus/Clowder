@@ -74,24 +74,40 @@ void Game::LoadLevel(int level)
 {
   registry->AddSystem<MovementSystem>();
   registry->AddSystem<RenderSystem>();
+  registry->AddSystem<AnimationSystem>();
 
   assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
   assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
+  assetStore->AddTexture(renderer, "chopper-image", "./assets/images/chopper.png");
+  assetStore->AddTexture(renderer, "radar-image", "./assets/images/radar.png");
+
+
   assetStore->AddTexture(renderer, "jungle-map", "./assets/tilemaps/jungle.png");
 
   LoadTileMap("./assets/tilemaps/jungle.map");
 
-  Entity tank = registry->CreateEntity();
+  Entity chopper = registry->CreateEntity();
+  chopper.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
+  chopper.AddComponent<RigidBodyComponent>(glm::vec2(50.0, 20.0));
+  chopper.AddComponent<SpriteComponent>("chopper-image", 32, 32, 2);
+  chopper.AddComponent<AnimationComponent>(2,10, true);
 
-  tank.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
-  tank.AddComponent<RigidBodyComponent>(glm::vec2(50.0, 20.0));
-  tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 2);
+  Entity radar = registry->CreateEntity();
+  radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 64 - 10, 10), glm::vec2(1.0, 1.0), 0.0);
+  radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 2);
+  radar.AddComponent<AnimationComponent>(8,10, true);
 
-  Entity truck = registry->CreateEntity();
+  // Entity tank = registry->CreateEntity();
 
-  truck.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
-  truck.AddComponent<RigidBodyComponent>(glm::vec2(50.0, 25.0));
-  truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 1);
+  // tank.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
+  // tank.AddComponent<RigidBodyComponent>(glm::vec2(50.0, 20.0));
+  // tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 2);
+
+  // Entity truck = registry->CreateEntity();
+
+  // truck.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
+  // truck.AddComponent<RigidBodyComponent>(glm::vec2(50.0, 25.0));
+  // truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 1);
 }
 
 void Game::LoadTileMap(const std::string& tileMapPath)
@@ -195,6 +211,7 @@ void Game::Update()
   millisecondsPreviousFrame = SDL_GetTicks();
 
   registry->GetSystem<MovementSystem>().Update(deltaTime);
+  registry->GetSystem<AnimationSystem>().Update();
   registry->Update();
 }
 

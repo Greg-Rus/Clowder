@@ -2,3 +2,4 @@
 #include "RigidBodyComponent.h"
 #include "TransformComponent.h"
 #include "SpriteComponent.h"
+#include "AnimationComponent.h"
