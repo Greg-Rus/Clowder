@@ -30,13 +30,16 @@ public:
                 {
                     continue;
                 }
-                bool collisionResult = AreColliding(&*i, &*j);
-                if(collisionResult)
+                bool collisionDetected = AreColliding(&*i, &*j);
+                if(collisionDetected)
                 {
                     Logger::Log("Entity: " + 
                     std::to_string(a.GetId()) +
                     " collided with entity: " + 
                     std::to_string(b.GetId()));
+                    //TODO: Emit event
+                    // a.Kill();
+                    // b.Kill();
                 }
             }
         }
