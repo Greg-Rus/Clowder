@@ -3,3 +3,4 @@
 #include "RenderSystem.h"
 #include "AnimationSystem.h"
 #include "CollisionSystem.h"
+#include "DebugRenderColliderSystem.h"

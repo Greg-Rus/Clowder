@@ -20,39 +20,44 @@ public:
         {
             return;
         }
-        for (int i = 0; i < entities.size() - 1; i++)
+        for (auto i = entities.begin(); i != entities.end(); i++)
         {
-            int nextEntityIndex = i + 1;
-
-            for (int j = nextEntityIndex; j < entities.size(); j++)
+            Entity a = *i;
+            for(auto j = i; j != entities.end(); j++)
             {
-                AreColliding(entities[i], entities[j]);
+                Entity b = *j;
+                if(a == b)
+                {
+                    continue;
+                }
+                bool collisionResult = AreColliding(&*i, &*j);
+                if(collisionResult)
+                {
+                    Logger::Log("Entity: " + 
+                    std::to_string(a.GetId()) +
+                    " collided with entity: " + 
+                    std::to_string(b.GetId()));
+                }
             }
         }
     }
 
 private:
-    bool AreColliding(Entity a, Entity b)
+    bool AreColliding(Entity* a, Entity* b)
     {
-        glm::vec2 aPosition = a.GetComponent<TransformComponent>().position;
-        glm::vec2 bPosition = b.GetComponent<TransformComponent>().position;
-        BoxColliderComponent aBox = a.GetComponent<BoxColliderComponent>();
-        BoxColliderComponent bBox = b.GetComponent<BoxColliderComponent>();
+        glm::vec2 aPosition = a->GetComponent<TransformComponent>().position;
+        glm::vec2 bPosition = b->GetComponent<TransformComponent>().position;
+        glm::vec2 aScale = a->GetComponent<TransformComponent>().scale;
+        glm::vec2 bScale = b->GetComponent<TransformComponent>().scale;
+        BoxColliderComponent aBox = a->GetComponent<BoxColliderComponent>();
+        BoxColliderComponent bBox = b->GetComponent<BoxColliderComponent>();
 
         glm::vec2 aOrigin = aPosition + aBox.offset;
         glm::vec2 bOrigin = bPosition + bBox.offset;
 
-        if (aOrigin.x < bOrigin.x + bBox.width &&
-            aOrigin.x + aBox.width > bOrigin.x &&
-            aOrigin.y < bOrigin.y + bBox.height &&
-            aOrigin.y + aBox.height > bOrigin.y)
-        {
-            Logger::Log("Collision!");
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return aOrigin.x < bOrigin.x + bBox.width * bScale.x &&
+            aOrigin.x + aBox.width * aScale.x > bOrigin.x &&
+            aOrigin.y < bOrigin.y + bBox.height * bScale.y &&
+            aOrigin.y + aBox.height * aScale.y > bOrigin.y;
     }
 };

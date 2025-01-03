@@ -21,6 +21,7 @@
 Game::Game()
 {
   isRunning = false;
+  isDebug = false;
   registry = std::make_unique<Registry>();
   assetStore = std::make_unique<AssetStore>();
 
@@ -41,8 +42,8 @@ void Game::Initialize()
   };
   SDL_DisplayMode displayMode;
   SDL_GetCurrentDisplayMode(0, &displayMode);
-  windowWidth = displayMode.w /2;
-  windowHeight = displayMode.h /2;
+  windowWidth = displayMode.w / 2;
+  windowHeight = displayMode.h / 2;
 
   window = SDL_CreateWindow(
       "Clowder Game Engine",
@@ -76,12 +77,12 @@ void Game::LoadLevel(int level)
   registry->AddSystem<RenderSystem>();
   registry->AddSystem<AnimationSystem>();
   registry->AddSystem<CollisionSystem>();
+  registry->AddSystem<DebugRenderColliderSystem>();
 
   assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
   assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
   assetStore->AddTexture(renderer, "chopper-image", "./assets/images/chopper.png");
   assetStore->AddTexture(renderer, "radar-image", "./assets/images/radar.png");
-
 
   assetStore->AddTexture(renderer, "jungle-map", "./assets/tilemaps/jungle.png");
 
@@ -91,12 +92,13 @@ void Game::LoadLevel(int level)
   chopper.AddComponent<TransformComponent>(glm::vec2(10.0, 100.0), glm::vec2(1.0, 1.0), 0.0);
   chopper.AddComponent<RigidBodyComponent>(glm::vec2(50.0, 20.0));
   chopper.AddComponent<SpriteComponent>("chopper-image", 32, 32, 2);
-  chopper.AddComponent<AnimationComponent>(2,10, true);
+  chopper.AddComponent<AnimationComponent>(2, 10, true);
+  chopper.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
 
   Entity radar = registry->CreateEntity();
   radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 64 - 10, 10), glm::vec2(1.0, 1.0), 0.0);
   radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 2);
-  radar.AddComponent<AnimationComponent>(8,10, true);
+  radar.AddComponent<AnimationComponent>(8, 10, true);
 
   Entity tank = registry->CreateEntity();
   tank.AddComponent<TransformComponent>(glm::vec2(200.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
@@ -111,15 +113,15 @@ void Game::LoadLevel(int level)
   truck.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
 }
 
-void Game::LoadTileMap(const std::string& tileMapPath)
+void Game::LoadTileMap(const std::string &tileMapPath)
 {
   std::ifstream file(tileMapPath);
   std::string line;
-  std::vector<std::vector<int>*> map;
+  std::vector<std::vector<int> *> map;
 
   while (std::getline(file, line))
   {
-    std::vector<int>* newRow = new std::vector<int>();
+    std::vector<int> *newRow = new std::vector<int>();
     std::string token;
     std::istringstream tokenStream(line);
     while (std::getline(tokenStream, token, ','))
@@ -145,8 +147,8 @@ void Game::LoadTileMap(const std::string& tileMapPath)
       int srcRectX = mapCol * tileSize;
       int srcRectY = mapRow * tileSize;
       Logger::Log("Id: " + std::to_string(tileId) +
-        "X: " + std::to_string(srcRectX) + " Y: " + std::to_string(srcRectY));
-      
+                  "X: " + std::to_string(srcRectX) + " Y: " + std::to_string(srcRectY));
+
       Entity tile = registry->CreateEntity();
       tile.AddComponent<TransformComponent>(glm::vec2(tileX * tileScale, tileY * tileScale), glm::vec2(tileScale, tileScale), 0.0);
       tile.AddComponent<SpriteComponent>("jungle-map", 32, 32, 0, srcRectX, srcRectY);
@@ -194,6 +196,10 @@ void Game::ProcessInput()
       {
         isRunning = false;
       }
+      if (sdlEvent.key.keysym.sym == SDLK_d)
+      {
+        isDebug = !isDebug;
+      }
       break;
     }
   }
@@ -223,6 +229,10 @@ void Game::Render()
   SDL_RenderClear(renderer);
 
   registry->GetSystem<RenderSystem>().Update(renderer, assetStore);
+  if (isDebug)
+  {
+    registry->GetSystem<DebugRenderColliderSystem>().Update(renderer);
+  }
 
   SDL_RenderPresent(renderer);
 }
