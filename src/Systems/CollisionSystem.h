@@ -38,8 +38,6 @@ public:
                     " collided with entity: " + 
                     std::to_string(b.GetId()));
                     //TODO: Emit event
-                    // a.Kill();
-                    // b.Kill();
                 }
             }
         }
