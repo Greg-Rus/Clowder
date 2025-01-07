@@ -6,3 +6,4 @@
 #include "DebugRenderColliderSystem.h"
 #include "DamageSystem.h"
 #include "KeyboardMovementSystem.h"
+#include "CameraMovementSystem.h"

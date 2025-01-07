@@ -18,6 +18,11 @@
 #include <fstream>
 #include <sstream>
 
+int Game::windowWidth;
+int Game::windowHeight;
+int Game::mapWidth;
+int Game::mapHeight;
+
 Game::Game()
 {
   isRunning = false;
@@ -68,6 +73,12 @@ void Game::Initialize()
   }
 
   // SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+
+  camera.x = 0;
+  camera.y = 0;
+  camera.w = windowWidth;
+  camera.h = windowHeight;
+
   isRunning = true;
   Logger::Log("Game Initialized!");
 }
@@ -81,6 +92,7 @@ void Game::LoadLevel(int level)
   registry->AddSystem<DebugRenderColliderSystem>();
   registry->AddSystem<DamageSystem>();
   registry->AddSystem<KeyboardControlSystem>();
+  registry->AddSystem<CameraMovementSystem>();
 
   assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
   assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
@@ -97,29 +109,30 @@ void Game::LoadLevel(int level)
   chopper.AddComponent<SpriteComponent>("chopper-image", 32, 32, 2);
   chopper.AddComponent<AnimationComponent>(2, 10, true);
   chopper.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
-  int velocity = 100;
+  int velocity = 200;
   chopper.AddComponent<KeyboardControlledComponent>(
-  glm::vec2(0, -velocity),
-  glm::vec2(velocity, 0),
-  glm::vec2(0, velocity),
-  glm::vec2(-velocity, 0));
+      glm::vec2(0, -velocity),
+      glm::vec2(velocity, 0),
+      glm::vec2(0, velocity),
+      glm::vec2(-velocity, 0));
+  chopper.AddComponent<CameraFollowComponent>();
 
-  // Entity radar = registry->CreateEntity();
-  // radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 64 - 10, 10), glm::vec2(1.0, 1.0), 0.0);
-  // radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 2);
-  // radar.AddComponent<AnimationComponent>(8, 10, true);
+  Entity radar = registry->CreateEntity();
+  radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 64 - 10, 10), glm::vec2(1.0, 1.0), 0.0);
+  radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 2);
+  radar.AddComponent<AnimationComponent>(8, 10, true);
 
-  // Entity tank = registry->CreateEntity();
-  // tank.AddComponent<TransformComponent>(glm::vec2(200.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
-  // tank.AddComponent<RigidBodyComponent>(glm::vec2(-30, 0.0));
-  // tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 2);
-  // tank.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
+  Entity tank = registry->CreateEntity();
+  tank.AddComponent<TransformComponent>(glm::vec2(200.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
+  tank.AddComponent<RigidBodyComponent>(glm::vec2(-30, 0.0));
+  tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 2);
+  tank.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
 
-  // Entity truck = registry->CreateEntity();
-  // truck.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
-  // truck.AddComponent<RigidBodyComponent>(glm::vec2(30.0, 0.0));
-  // truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 1);
-  // truck.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
+  Entity truck = registry->CreateEntity();
+  truck.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
+  truck.AddComponent<RigidBodyComponent>(glm::vec2(30.0, 0.0));
+  truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 1);
+  truck.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
 }
 
 void Game::LoadTileMap(const std::string &tileMapPath)
@@ -143,10 +156,12 @@ void Game::LoadTileMap(const std::string &tileMapPath)
 
   file.close();
   int tileSize = 32;
-  double tileScale = 2.0;
-  for (auto row = 0; row < map.size(); row++)
+  double tileScale = 3.0;
+  int mapNumRows = map.size();
+  int mapNumCols = map[0]->size();
+  for (auto row = 0; row < mapNumRows; row++)
   {
-    for (auto col = 0; col < map[row]->size(); col++)
+    for (auto col = 0; col < mapNumCols; col++)
     {
       int tileId = map[row]->at(col);
       int mapRow = tileId * 0.1;
@@ -163,6 +178,8 @@ void Game::LoadTileMap(const std::string &tileMapPath)
       tile.AddComponent<SpriteComponent>("jungle-map", 32, 32, 0, srcRectX, srcRectY);
     }
   }
+  mapWidth = mapNumCols * tileSize * tileScale;
+  mapHeight = mapNumRows * tileSize * tileScale;
 }
 
 void Game::Setup()
@@ -237,6 +254,7 @@ void Game::Update()
   registry->GetSystem<MovementSystem>().Update(deltaTime);
   registry->GetSystem<AnimationSystem>().Update();
   registry->GetSystem<CollisionSystem>().Update(eventBus);
+  registry->GetSystem<CameraMovementSystem>().Update(camera);
 }
 
 void Game::Render()
@@ -244,7 +262,7 @@ void Game::Render()
   SDL_SetRenderDrawColor(renderer, 10, 100, 50, 255);
   SDL_RenderClear(renderer);
 
-  registry->GetSystem<RenderSystem>().Update(renderer, assetStore);
+  registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
   if (isDebug)
   {
     registry->GetSystem<DebugRenderColliderSystem>().Update(renderer);
