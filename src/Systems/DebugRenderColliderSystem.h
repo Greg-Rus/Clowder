@@ -12,7 +12,7 @@ class DebugRenderColliderSystem : public System
             RequireComponent<BoxColliderComponent>();
         }
 
-        void Update(SDL_Renderer* renderer)
+        void Update(SDL_Renderer* renderer, SDL_Rect& camera)
         {
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 
@@ -21,8 +21,8 @@ class DebugRenderColliderSystem : public System
                 const auto collider = e.GetComponent<BoxColliderComponent>();
                 const auto transform = e.GetComponent<TransformComponent>();
                 SDL_Rect box;
-                box.x = transform.position.x + collider.offset.x;
-                box.y = transform.position.y + collider.offset.y;
+                box.x = transform.position.x + collider.offset.x - camera.x;
+                box.y = transform.position.y + collider.offset.y - camera.y;
                 box.w = collider.width * transform.scale.x;
                 box.h = collider.height * transform.scale.y;
 
