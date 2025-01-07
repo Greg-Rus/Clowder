@@ -80,11 +80,11 @@ void Game::LoadLevel(int level)
   registry->AddSystem<CollisionSystem>();
   registry->AddSystem<DebugRenderColliderSystem>();
   registry->AddSystem<DamageSystem>();
-  registry->AddSystem<KeyboardMovementSystem>();
+  registry->AddSystem<KeyboardControlSystem>();
 
   assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
   assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
-  assetStore->AddTexture(renderer, "chopper-image", "./assets/images/chopper.png");
+  assetStore->AddTexture(renderer, "chopper-image", "./assets/images/chopper-spritesheet.png");
   assetStore->AddTexture(renderer, "radar-image", "./assets/images/radar.png");
 
   assetStore->AddTexture(renderer, "jungle-map", "./assets/tilemaps/jungle.png");
@@ -93,27 +93,33 @@ void Game::LoadLevel(int level)
 
   Entity chopper = registry->CreateEntity();
   chopper.AddComponent<TransformComponent>(glm::vec2(10.0, 100.0), glm::vec2(1.0, 1.0), 0.0);
-  chopper.AddComponent<RigidBodyComponent>(glm::vec2(50.0, 20.0));
+  chopper.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
   chopper.AddComponent<SpriteComponent>("chopper-image", 32, 32, 2);
   chopper.AddComponent<AnimationComponent>(2, 10, true);
   chopper.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
+  int velocity = 100;
+  chopper.AddComponent<KeyboardControlledComponent>(
+  glm::vec2(0, -velocity),
+  glm::vec2(velocity, 0),
+  glm::vec2(0, velocity),
+  glm::vec2(-velocity, 0));
 
-  Entity radar = registry->CreateEntity();
-  radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 64 - 10, 10), glm::vec2(1.0, 1.0), 0.0);
-  radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 2);
-  radar.AddComponent<AnimationComponent>(8, 10, true);
+  // Entity radar = registry->CreateEntity();
+  // radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 64 - 10, 10), glm::vec2(1.0, 1.0), 0.0);
+  // radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 2);
+  // radar.AddComponent<AnimationComponent>(8, 10, true);
 
-  Entity tank = registry->CreateEntity();
-  tank.AddComponent<TransformComponent>(glm::vec2(200.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
-  tank.AddComponent<RigidBodyComponent>(glm::vec2(-30, 0.0));
-  tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 2);
-  tank.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
+  // Entity tank = registry->CreateEntity();
+  // tank.AddComponent<TransformComponent>(glm::vec2(200.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
+  // tank.AddComponent<RigidBodyComponent>(glm::vec2(-30, 0.0));
+  // tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 2);
+  // tank.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
 
-  Entity truck = registry->CreateEntity();
-  truck.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
-  truck.AddComponent<RigidBodyComponent>(glm::vec2(30.0, 0.0));
-  truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 1);
-  truck.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
+  // Entity truck = registry->CreateEntity();
+  // truck.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
+  // truck.AddComponent<RigidBodyComponent>(glm::vec2(30.0, 0.0));
+  // truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 1);
+  // truck.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
 }
 
 void Game::LoadTileMap(const std::string &tileMapPath)
@@ -200,7 +206,7 @@ void Game::ProcessInput()
       {
         isRunning = false;
       }
-      if (sdlEvent.key.keysym.sym == SDLK_d)
+      if (sdlEvent.key.keysym.sym == SDLK_HOME)
       {
         isDebug = !isDebug;
       }
@@ -224,7 +230,7 @@ void Game::Update()
   eventBus->Reset();
 
   registry->GetSystem<DamageSystem>().SubscribeToEvents(eventBus);
-  registry->GetSystem<KeyboardMovementSystem>().SubscribeToEvents(eventBus);
+  registry->GetSystem<KeyboardControlSystem>().SubscribeToEvents(eventBus);
 
   registry->Update();
 
