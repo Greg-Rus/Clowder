@@ -6,3 +6,6 @@
 #include "BoxColliderComponent.h"
 #include "KeyboardControlledComponent.h"
 #include "CameraFollowComponent.h"
+#include "ProjectileEmitterComponent.h"
+#include "HealthComponent.h"
+#include "ProjectileComponent.h"

@@ -7,3 +7,5 @@
 #include "DamageSystem.h"
 #include "KeyboardMovementSystem.h"
 #include "CameraMovementSystem.h"
+#include "ProjectileEmitSystem.h"
+#include "ProjectileLifecycleSystem.h"

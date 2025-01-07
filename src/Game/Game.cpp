@@ -93,11 +93,15 @@ void Game::LoadLevel(int level)
   registry->AddSystem<DamageSystem>();
   registry->AddSystem<KeyboardControlSystem>();
   registry->AddSystem<CameraMovementSystem>();
+  registry->AddSystem<ProjectileEmitSystem>();
+  registry->AddSystem<ProjectileLifecycleSystem>();
+
 
   assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
   assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
   assetStore->AddTexture(renderer, "chopper-image", "./assets/images/chopper-spritesheet.png");
   assetStore->AddTexture(renderer, "radar-image", "./assets/images/radar.png");
+  assetStore->AddTexture(renderer, "bullet-image", "./assets/images/bullet.png");
 
   assetStore->AddTexture(renderer, "jungle-map", "./assets/tilemaps/jungle.png");
 
@@ -116,6 +120,7 @@ void Game::LoadLevel(int level)
       glm::vec2(0, velocity),
       glm::vec2(-velocity, 0));
   chopper.AddComponent<CameraFollowComponent>();
+  chopper.AddComponent<HealthComponent>(100);
 
   Entity radar = registry->CreateEntity();
   radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 64 - 10, 10), glm::vec2(1.0, 1.0), 0.0);
@@ -124,15 +129,18 @@ void Game::LoadLevel(int level)
 
   Entity tank = registry->CreateEntity();
   tank.AddComponent<TransformComponent>(glm::vec2(200.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
-  tank.AddComponent<RigidBodyComponent>(glm::vec2(-30, 0.0));
+  tank.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
   tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 2);
   tank.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
+  tank.AddComponent<ProjectileEmitterComponent>(glm::vec2(500,0), 3000, 3000);
+  tank.AddComponent<HealthComponent>(100);
 
   Entity truck = registry->CreateEntity();
-  truck.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
-  truck.AddComponent<RigidBodyComponent>(glm::vec2(30.0, 0.0));
+  truck.AddComponent<TransformComponent>(glm::vec2(10.0, 50.0), glm::vec2(1.0, 1.0), 0.0);
+  truck.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
   truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 1);
   truck.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
+  truck.AddComponent<HealthComponent>(100);
 }
 
 void Game::LoadTileMap(const std::string &tileMapPath)
@@ -255,6 +263,8 @@ void Game::Update()
   registry->GetSystem<AnimationSystem>().Update();
   registry->GetSystem<CollisionSystem>().Update(eventBus);
   registry->GetSystem<CameraMovementSystem>().Update(camera);
+  registry->GetSystem<ProjectileEmitSystem>().Update(registry);
+  registry->GetSystem<ProjectileLifecycleSystem>().Update();
 }
 
 void Game::Render()
