@@ -4,17 +4,13 @@
 #include <typeindex>
 #include <memory>
 #include <list>
-
-class Event
-{
-public:
-    Event() = default;
-};
+#include "Event.h"
+#include <functional>
 
 class IEventCallback
 {
 private:
-    virtual void Call(Event& e) =0;
+    virtual void Call(Event& e) = 0;
 public:
     virtual ~IEventCallback() = default;
     void Execute(Event &e)
@@ -33,7 +29,7 @@ class EventCallback : public IEventCallback
 
     virtual void Call(Event& e) override
     {
-        std::invoke(callbackFunction, ownerInstance, static_cast<TEvent>(e));
+        std::invoke(callbackFunction, ownerInstance, static_cast<TEvent&>(e));
     }
 
     public:
@@ -43,7 +39,7 @@ class EventCallback : public IEventCallback
             this->callbackFunction = callbackFunction;
         }
 
-        virtual ~EventCallback() overrid = default;
+        virtual ~EventCallback() override = default;
 };
 
 typedef std::list<std::unique_ptr<IEventCallback>> HandlerList;
@@ -64,10 +60,19 @@ public:
         Logger::Log("Event bus destroyed.");
     }
 
-template<typename TEvent>
-    void EmitEvent()
+template<typename TEvent, typename ...TArgs>
+    void EmitEvent(TArgs&& ...args)
     {
         auto handlers = subscribers[typeid(TEvent)].get(); 
+        if(handlers)
+        {
+            for(auto it = handlers->begin(); it != handlers->end(); it++)
+            {
+                auto handler = it->get();
+                TEvent event(std::forward<TArgs>(args)...);
+                handler->Execute(event);
+            }
+        }
     }
 
     template<typename TEvent, typename TOwner>
@@ -79,5 +84,10 @@ template<typename TEvent>
         }
         auto subscriber = std::make_unique<EventCallback<TOwner, TEvent>>(ownerInstance, callbackFunction);
         subscribers[typeid(TEvent)]->push_back(std::move(subscriber));
+    }
+
+    void Reset()
+    {
+        subscribers.clear();
     }
 };

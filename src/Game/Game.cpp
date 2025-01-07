@@ -24,6 +24,7 @@ Game::Game()
   isDebug = false;
   registry = std::make_unique<Registry>();
   assetStore = std::make_unique<AssetStore>();
+  eventBus = std::make_unique<EventBus>();
 
   Logger::Log("Game Constructor Called!");
 }
@@ -78,6 +79,8 @@ void Game::LoadLevel(int level)
   registry->AddSystem<AnimationSystem>();
   registry->AddSystem<CollisionSystem>();
   registry->AddSystem<DebugRenderColliderSystem>();
+  registry->AddSystem<DamageSystem>();
+  registry->AddSystem<KeyboardMovementSystem>();
 
   assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
   assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
@@ -192,6 +195,7 @@ void Game::ProcessInput()
       isRunning = false;
       break;
     case SDL_KEYDOWN:
+      eventBus->EmitEvent<KeyPressedEvent>(sdlEvent.key.keysym.sym);
       if (sdlEvent.key.keysym.sym == SDLK_ESCAPE)
       {
         isRunning = false;
@@ -217,10 +221,16 @@ void Game::Update()
 
   millisecondsPreviousFrame = SDL_GetTicks();
 
+  eventBus->Reset();
+
+  registry->GetSystem<DamageSystem>().SubscribeToEvents(eventBus);
+  registry->GetSystem<KeyboardMovementSystem>().SubscribeToEvents(eventBus);
+
+  registry->Update();
+
   registry->GetSystem<MovementSystem>().Update(deltaTime);
   registry->GetSystem<AnimationSystem>().Update();
-  registry->GetSystem<CollisionSystem>().Update();
-  registry->Update();
+  registry->GetSystem<CollisionSystem>().Update(eventBus);
 }
 
 void Game::Render()

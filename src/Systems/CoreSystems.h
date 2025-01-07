@@ -4,3 +4,5 @@
 #include "AnimationSystem.h"
 #include "CollisionSystem.h"
 #include "DebugRenderColliderSystem.h"
+#include "DamageSystem.h"
+#include "KeyboardMovementSystem.h"

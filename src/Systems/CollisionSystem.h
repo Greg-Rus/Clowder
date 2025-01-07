@@ -3,6 +3,8 @@
 #include "../ECS/ECS.h"
 #include "../Components/CoreComponents.h"
 #include <glm/glm.hpp>
+#include "../EventBus/EventBus.h"
+#include "../Events/CollisionEvent.h"
 
 class CollisionSystem : public System
 {
@@ -13,7 +15,7 @@ public:
         RequireComponent<TransformComponent>();
     }
 
-    void Update()
+    void Update(std::unique_ptr<EventBus>& eventBus)
     {
         auto entities = GetSystemEntities();
         if (entities.size() <= 1)
@@ -37,7 +39,7 @@ public:
                     std::to_string(a.GetId()) +
                     " collided with entity: " + 
                     std::to_string(b.GetId()));
-                    //TODO: Emit event
+                    eventBus->EmitEvent<CollisionEvent>(a, b);
                 }
             }
         }
