@@ -48,8 +48,10 @@ void Game::Initialize()
   };
   SDL_DisplayMode displayMode;
   SDL_GetCurrentDisplayMode(0, &displayMode);
-  windowWidth = displayMode.w / 2;
-  windowHeight = displayMode.h / 2;
+  // windowWidth = displayMode.w / 2;
+  // windowHeight = displayMode.h / 2;
+  windowWidth = 800;
+  windowHeight = 600;
 
   window = SDL_CreateWindow(
       "Clowder Game Engine",
@@ -93,7 +95,7 @@ void Game::LoadLevel(int level)
   registry->AddSystem<DamageSystem>();
   registry->AddSystem<KeyboardControlSystem>();
   registry->AddSystem<CameraMovementSystem>();
-  registry->AddSystem<ProjectileEmitSystem>();
+  registry->AddSystem<ProjectileEmitSystem>(registry);
   registry->AddSystem<ProjectileLifecycleSystem>();
 
 
@@ -121,6 +123,7 @@ void Game::LoadLevel(int level)
       glm::vec2(-velocity, 0));
   chopper.AddComponent<CameraFollowComponent>();
   chopper.AddComponent<HealthComponent>(100);
+  chopper.AddComponent<ProjectileEmitterComponent>(glm::vec2(500,500), 0, 3000, true, 50);
 
   Entity radar = registry->CreateEntity();
   radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 64 - 10, 10), glm::vec2(1.0, 1.0), 0.0);
@@ -132,7 +135,7 @@ void Game::LoadLevel(int level)
   tank.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
   tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 2);
   tank.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
-  tank.AddComponent<ProjectileEmitterComponent>(glm::vec2(500,0), 3000, 3000);
+  tank.AddComponent<ProjectileEmitterComponent>(glm::vec2(500,0), 1000, 3000);
   tank.AddComponent<HealthComponent>(100);
 
   Entity truck = registry->CreateEntity();
@@ -141,6 +144,7 @@ void Game::LoadLevel(int level)
   truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 1);
   truck.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
   truck.AddComponent<HealthComponent>(100);
+  truck.AddComponent<ProjectileEmitterComponent>(glm::vec2(500,0), 1000, 3000);
 }
 
 void Game::LoadTileMap(const std::string &tileMapPath)
@@ -256,6 +260,7 @@ void Game::Update()
 
   registry->GetSystem<DamageSystem>().SubscribeToEvents(eventBus);
   registry->GetSystem<KeyboardControlSystem>().SubscribeToEvents(eventBus);
+  registry->GetSystem<ProjectileEmitSystem>().SubscribeToEvents(eventBus);
 
   registry->Update();
 
@@ -263,7 +268,7 @@ void Game::Update()
   registry->GetSystem<AnimationSystem>().Update();
   registry->GetSystem<CollisionSystem>().Update(eventBus);
   registry->GetSystem<CameraMovementSystem>().Update(camera);
-  registry->GetSystem<ProjectileEmitSystem>().Update(registry);
+  registry->GetSystem<ProjectileEmitSystem>().Update();
   registry->GetSystem<ProjectileLifecycleSystem>().Update();
 }
 

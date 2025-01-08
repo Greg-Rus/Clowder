@@ -37,6 +37,10 @@ public:
     Entity(int id) : id(id) {};
     int GetId() const;
     void Kill();
+    void Tag(const std::string& tag);
+    bool HasTag(const std::string& tag) const;
+    void Group(const std::string& gropu);
+    bool BelongsToGroup(const std::string& group) const;
 
     bool operator==(const Entity &other) const
     {
@@ -164,6 +168,11 @@ private:
     std::unordered_map<std::type_index, std::shared_ptr<System>> systems;
     std::deque<int> freeIds;
 
+    std::unordered_map<std::string, Entity> entityPerTag;
+    std::unordered_map<int, std::string> tagPerEntity;
+    std::unordered_map<std::string, std::set<Entity>> entitiesPerGroup;
+    std::unordered_map<int, std::string> groupPerEntity;
+
 public:
     Registry() = default;
     void Update();
@@ -192,6 +201,15 @@ public:
 
     void AddEntityToSystems(Entity entity);
     void RemoveEntityFromSystems(Entity entity);
+
+    void TagEntity(Entity entity, const std::string& tag);
+    bool EntityHasTag(Entity entity, const std::string& tag) const;
+    Entity GetEntityByTag(const std::string& tag) const;
+    void RemoveEntityTag(Entity entity);
+    void GroupEntity(Entity entity, const std::string& group);
+    bool EntityBelongsToGroup(Entity entity, const std::string& group) const;
+    std::vector<Entity> GetEntitiesByGroup(const std::string& group) const;
+    void RemoveEntityGroup(Entity entity);
 };
 
 template <typename TSystem, typename... TArgs>
