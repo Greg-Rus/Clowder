@@ -110,6 +110,7 @@ void Game::LoadLevel(int level)
   LoadTileMap("./assets/tilemaps/jungle.map");
 
   Entity chopper = registry->CreateEntity();
+  chopper.Tag("player");
   chopper.AddComponent<TransformComponent>(glm::vec2(10.0, 100.0), glm::vec2(1.0, 1.0), 0.0);
   chopper.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
   chopper.AddComponent<SpriteComponent>("chopper-image", 32, 32, 2);
@@ -123,7 +124,7 @@ void Game::LoadLevel(int level)
       glm::vec2(-velocity, 0));
   chopper.AddComponent<CameraFollowComponent>();
   chopper.AddComponent<HealthComponent>(100);
-  chopper.AddComponent<ProjectileEmitterComponent>(glm::vec2(500,500), 0, 3000, true, 50);
+  chopper.AddComponent<ProjectileEmitterComponent>(glm::vec2(500,500), 0, 3000, true, 10);
 
   Entity radar = registry->CreateEntity();
   radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 64 - 10, 10), glm::vec2(1.0, 1.0), 0.0);
@@ -131,20 +132,22 @@ void Game::LoadLevel(int level)
   radar.AddComponent<AnimationComponent>(8, 10, true);
 
   Entity tank = registry->CreateEntity();
+  tank.Group("enemies");
   tank.AddComponent<TransformComponent>(glm::vec2(200.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
   tank.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
   tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 2);
   tank.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
-  tank.AddComponent<ProjectileEmitterComponent>(glm::vec2(500,0), 1000, 3000);
+  tank.AddComponent<ProjectileEmitterComponent>(glm::vec2(500,0), 1000, 3000, false, 10);
   tank.AddComponent<HealthComponent>(100);
 
   Entity truck = registry->CreateEntity();
+  truck.Group("enemies");
   truck.AddComponent<TransformComponent>(glm::vec2(10.0, 50.0), glm::vec2(1.0, 1.0), 0.0);
   truck.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
   truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 1);
   truck.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
   truck.AddComponent<HealthComponent>(100);
-  truck.AddComponent<ProjectileEmitterComponent>(glm::vec2(500,0), 1000, 3000);
+  truck.AddComponent<ProjectileEmitterComponent>(glm::vec2(500,0), 1000, 3000, false, 10);
 }
 
 void Game::LoadTileMap(const std::string &tileMapPath)
@@ -186,6 +189,7 @@ void Game::LoadTileMap(const std::string &tileMapPath)
                   "X: " + std::to_string(srcRectX) + " Y: " + std::to_string(srcRectY));
 
       Entity tile = registry->CreateEntity();
+      tile.Group("tiles");
       tile.AddComponent<TransformComponent>(glm::vec2(tileX * tileScale, tileY * tileScale), glm::vec2(tileScale, tileScale), 0.0);
       tile.AddComponent<SpriteComponent>("jungle-map", 32, 32, 0, false, srcRectX, srcRectY);
     }

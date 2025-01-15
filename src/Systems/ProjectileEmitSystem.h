@@ -88,6 +88,7 @@ private:
             }
 
             Entity projectile = registry->get()->CreateEntity();
+            projectile.Group("projectiles");
             projectile.AddComponent<TransformComponent>(spawnPoint, glm::vec2(1.0), 0.0);
             projectile.AddComponent<RigidBodyComponent>(projectileVelocity);
             projectile.AddComponent<SpriteComponent>("bullet-image", 4, 4, 4);
