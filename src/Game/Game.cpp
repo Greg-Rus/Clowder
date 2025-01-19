@@ -97,6 +97,7 @@ void Game::LoadLevel(int level)
   registry->AddSystem<CameraMovementSystem>();
   registry->AddSystem<ProjectileEmitSystem>(registry);
   registry->AddSystem<ProjectileLifecycleSystem>();
+  registry->AddSystem<RenderTextSystem>(assetStore);
 
 
   assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
@@ -104,8 +105,8 @@ void Game::LoadLevel(int level)
   assetStore->AddTexture(renderer, "chopper-image", "./assets/images/chopper-spritesheet.png");
   assetStore->AddTexture(renderer, "radar-image", "./assets/images/radar.png");
   assetStore->AddTexture(renderer, "bullet-image", "./assets/images/bullet.png");
-
   assetStore->AddTexture(renderer, "jungle-map", "./assets/tilemaps/jungle.png");
+  assetStore->AddFont("charriot-font", "./assets/fonts/charriot.ttf", 14);
 
   LoadTileMap("./assets/tilemaps/jungle.map");
 
@@ -148,6 +149,10 @@ void Game::LoadLevel(int level)
   truck.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
   truck.AddComponent<HealthComponent>(100);
   truck.AddComponent<ProjectileEmitterComponent>(glm::vec2(500,0), 1000, 3000, false, 10);
+
+  Entity label = registry->CreateEntity();
+  SDL_Color white = {255,255,255};
+  label.AddComponent<TextLabelComponent>(glm::vec2(300,300), "TEXT Test!!", "charriot-font", white, true);
 }
 
 void Game::LoadTileMap(const std::string &tileMapPath)
@@ -282,6 +287,7 @@ void Game::Render()
   SDL_RenderClear(renderer);
 
   registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
+  registry->GetSystem<RenderTextSystem>().Update(renderer);
   if (isDebug)
   {
     registry->GetSystem<DebugRenderColliderSystem>().Update(renderer, camera);

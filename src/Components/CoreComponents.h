@@ -9,3 +9,4 @@
 #include "ProjectileEmitterComponent.h"
 #include "HealthComponent.h"
 #include "ProjectileComponent.h"
+#include "TextLabelComponent.h"

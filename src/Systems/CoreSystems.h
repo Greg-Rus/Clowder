@@ -9,3 +9,4 @@
 #include "CameraMovementSystem.h"
 #include "ProjectileEmitSystem.h"
 #include "ProjectileLifecycleSystem.h"
+#include "RenderTextSystem.h"
