@@ -17,6 +17,10 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <imgui/imgui.h>
+#include <imgui/imgui_sdl.h>
+#include "../Events/KeyPressedEvent.h"
+#include "../Events/KeyUpEvent.h"
 
 int Game::windowWidth;
 int Game::windowHeight;
@@ -46,12 +50,18 @@ void Game::Initialize()
     Logger::Error("Failed to initialize SDL");
     return;
   };
+
+  if(TTF_Init() != 0)
+  {
+        Logger::Error("Failed to initialize SDL_TTF");
+    return;
+  }
   SDL_DisplayMode displayMode;
   SDL_GetCurrentDisplayMode(0, &displayMode);
-  // windowWidth = displayMode.w / 2;
-  // windowHeight = displayMode.h / 2;
-  windowWidth = 800;
-  windowHeight = 600;
+  //windowWidth = displayMode.w / 2;
+  //windowHeight = displayMode.h / 2;
+  windowWidth = 16 * 200;
+  windowHeight = 9 * 200;
 
   window = SDL_CreateWindow(
       "Clowder Game Engine",
@@ -59,7 +69,7 @@ void Game::Initialize()
       SDL_WINDOWPOS_CENTERED,
       windowWidth,
       windowHeight,
-      0);
+      SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
   if (!window)
   {
@@ -73,6 +83,10 @@ void Game::Initialize()
     Logger::Error("Failed to create SDL renderer");
     return;
   }
+  SDL_RenderSetScale(renderer, 2,  2);
+
+  ImGui::CreateContext();
+  ImGuiSDL::Initialize(renderer, windowWidth, windowHeight);
 
   // SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
@@ -98,7 +112,7 @@ void Game::LoadLevel(int level)
   registry->AddSystem<ProjectileEmitSystem>(registry);
   registry->AddSystem<ProjectileLifecycleSystem>();
   registry->AddSystem<RenderTextSystem>(assetStore);
-
+  registry->AddSystem<RenderHealthSystem>(assetStore);
 
   assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
   assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
@@ -122,10 +136,13 @@ void Game::LoadLevel(int level)
       glm::vec2(0, -velocity),
       glm::vec2(velocity, 0),
       glm::vec2(0, velocity),
-      glm::vec2(-velocity, 0));
+      glm::vec2(-velocity, 0),
+      velocity);
   chopper.AddComponent<CameraFollowComponent>();
   chopper.AddComponent<HealthComponent>(100);
   chopper.AddComponent<ProjectileEmitterComponent>(glm::vec2(500,500), 0, 3000, true, 10);
+  chopper.AddComponent<HealthDisplayComponent>("charriot-font");
+  chopper.AddComponent<OrientationComponent>(glm::vec2(1,0));
 
   Entity radar = registry->CreateEntity();
   radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 64 - 10, 10), glm::vec2(1.0, 1.0), 0.0);
@@ -140,6 +157,7 @@ void Game::LoadLevel(int level)
   tank.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
   tank.AddComponent<ProjectileEmitterComponent>(glm::vec2(500,0), 1000, 3000, false, 10);
   tank.AddComponent<HealthComponent>(100);
+  tank.AddComponent<HealthDisplayComponent>("charriot-font");
 
   Entity truck = registry->CreateEntity();
   truck.Group("enemies");
@@ -149,6 +167,7 @@ void Game::LoadLevel(int level)
   truck.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
   truck.AddComponent<HealthComponent>(100);
   truck.AddComponent<ProjectileEmitterComponent>(glm::vec2(500,0), 1000, 3000, false, 10);
+  truck.AddComponent<HealthDisplayComponent>("charriot-font");
 
   Entity label = registry->CreateEntity();
   SDL_Color white = {255,255,255};
@@ -221,13 +240,6 @@ void Game::Run()
   }
 }
 
-void Game::Destroy()
-{
-  SDL_DestroyWindow(window);
-  SDL_DestroyRenderer(renderer);
-  Logger::Log("Game Destroy!");
-}
-
 void Game::ProcessInput()
 {
   SDL_Event sdlEvent;
@@ -248,6 +260,10 @@ void Game::ProcessInput()
       {
         isDebug = !isDebug;
       }
+      break;
+
+    case SDL_KEYUP:
+      eventBus->EmitEvent<KeyUpEvent>(sdlEvent.key.keysym.sym);
       break;
     }
   }
@@ -279,6 +295,7 @@ void Game::Update()
   registry->GetSystem<CameraMovementSystem>().Update(camera);
   registry->GetSystem<ProjectileEmitSystem>().Update();
   registry->GetSystem<ProjectileLifecycleSystem>().Update();
+  registry->GetSystem<KeyboardControlSystem>().Update();
 }
 
 void Game::Render()
@@ -287,11 +304,26 @@ void Game::Render()
   SDL_RenderClear(renderer);
 
   registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
-  registry->GetSystem<RenderTextSystem>().Update(renderer);
+  registry->GetSystem<RenderTextSystem>().Update(renderer, camera);
+  registry->GetSystem<RenderHealthSystem>().Update(renderer, camera);
   if (isDebug)
   {
     registry->GetSystem<DebugRenderColliderSystem>().Update(renderer, camera);
+
+    ImGui::NewFrame();
+    ImGui::ShowDemoWindow();
+    ImGui::Render();
+    ImGuiSDL::Render(ImGui::GetDrawData());
   }
 
   SDL_RenderPresent(renderer);
+}
+
+void Game::Destroy()
+{
+  ImGuiSDL::Deinitialize();
+  ImGui::DestroyContext();
+  SDL_DestroyWindow(window);
+  SDL_DestroyRenderer(renderer);
+  Logger::Log("Game Destroy!");
 }

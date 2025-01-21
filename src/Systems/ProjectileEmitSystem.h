@@ -64,7 +64,14 @@ private:
             }
 
             glm::vec2 projectileVelocity = projectileEmitter.projectileVelocity;
-            if (entity.HasComponent<RigidBodyComponent>())
+
+            if(entity.HasComponent<OrientationComponent>())
+            {
+                auto &orientationComponent = entity.GetComponent<OrientationComponent>();
+                projectileVelocity.x = projectileEmitter.projectileVelocity.x * orientationComponent.orientation.x;
+                projectileVelocity.y = projectileEmitter.projectileVelocity.y * orientationComponent.orientation.y;
+            }
+            else if (entity.HasComponent<RigidBodyComponent>())
             {
                 auto &rigidBody = entity.GetComponent<RigidBodyComponent>();
                 int directionX = 0;

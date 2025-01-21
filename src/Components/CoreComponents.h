@@ -10,3 +10,4 @@
 #include "HealthComponent.h"
 #include "ProjectileComponent.h"
 #include "TextLabelComponent.h"
+#include "OrientationComponent.h"
