@@ -19,6 +19,7 @@
 #include <sstream>
 #include <imgui/imgui.h>
 #include <imgui/imgui_sdl.h>
+#include <imgui/imgui_impl_sdl2.h>
 #include "../Events/KeyPressedEvent.h"
 #include "../Events/KeyUpEvent.h"
 
@@ -245,6 +246,17 @@ void Game::ProcessInput()
   SDL_Event sdlEvent;
   while (SDL_PollEvent(&sdlEvent))
   {
+
+    ImGui_ImplSDL2_ProcessEvent(&sdlEvent);
+    ImGuiIO& io = ImGui::GetIO();
+
+    int mouseX, mouseY;
+    const int buttons = SDL_GetMouseState(&mouseX, &mouseY);
+
+    io.MousePos = ImVec2(mouseX, mouseY);
+    io.MouseDown[0] = buttons & SDL_BUTTON(SDL_BUTTON_LEFT);
+    io.MouseDown[1] = buttons & SDL_BUTTON(SDL_BUTTON_RIGHT);
+
     switch (sdlEvent.type)
     {
     case SDL_QUIT:
