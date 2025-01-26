@@ -126,6 +126,7 @@ void Game::LoadLevel(int level)
   registry->AddSystem<ProjectileLifecycleSystem>();
   registry->AddSystem<RenderTextSystem>(assetStore);
   registry->AddSystem<RenderHealthSystem>(assetStore);
+  registry->AddSystem<RenderGUISystem>(registry);
 
   assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
   assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
@@ -330,9 +331,9 @@ void Game::Render()
 {
   SDL_SetRenderDrawColor(renderer, 10, 100, 50, 255);
   SDL_RenderClear(renderer);
-  ImGui_ImplSDLRenderer2_NewFrame();
-  ImGui_ImplSDL2_NewFrame();
-  ImGui::NewFrame();
+  // ImGui_ImplSDLRenderer2_NewFrame();
+  // ImGui_ImplSDL2_NewFrame();
+  // ImGui::NewFrame();
 
   registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
   registry->GetSystem<RenderTextSystem>().Update(renderer, camera);
@@ -340,12 +341,13 @@ void Game::Render()
   if (isDebug)
   {
     registry->GetSystem<DebugRenderColliderSystem>().Update(renderer, camera);
+    registry->GetSystem<RenderGUISystem>().Update(renderer, camera);
 
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
   }
 
-  ImGui::Render();
-  ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), renderer);
+  // ImGui::Render();
+  // ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), renderer);
 
   SDL_RenderPresent(renderer);
 }

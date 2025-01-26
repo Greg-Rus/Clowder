@@ -11,3 +11,4 @@
 #include "ProjectileLifecycleSystem.h"
 #include "RenderTextSystem.h"
 #include "RenderHealthSystem.h"
+#include "RenderGUISystem.h"
