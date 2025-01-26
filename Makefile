@@ -2,6 +2,7 @@ CC = g++
 LANG_STD = -std=c++17
 COMPILER_FLAGS = -Wall -Wfatal-errors -g
 INCLUDE_PATH = -I"./libs/"
+INCLUDE_PATH += -I"/usr/include/SDL2/"
 SRC_FILES = src/*.cpp \
 			src/Game/*.cpp \
 			src/Logger/*.cpp \

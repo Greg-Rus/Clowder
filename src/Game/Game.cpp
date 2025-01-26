@@ -18,8 +18,8 @@
 #include <fstream>
 #include <sstream>
 #include <imgui/imgui.h>
-#include <imgui/imgui_sdl.h>
 #include <imgui/imgui_impl_sdl2.h>
+#include <imgui/imgui_impl_sdlrenderer2.h>
 #include "../Events/KeyPressedEvent.h"
 #include "../Events/KeyUpEvent.h"
 
@@ -27,6 +27,8 @@ int Game::windowWidth;
 int Game::windowHeight;
 int Game::mapWidth;
 int Game::mapHeight;
+int logicalWidth = 800;
+int logicalHeight = 600;
 
 Game::Game()
 {
@@ -57,12 +59,16 @@ void Game::Initialize()
         Logger::Error("Failed to initialize SDL_TTF");
     return;
   }
+
+
   SDL_DisplayMode displayMode;
   SDL_GetCurrentDisplayMode(0, &displayMode);
-  //windowWidth = displayMode.w / 2;
-  //windowHeight = displayMode.h / 2;
-  windowWidth = 16 * 200;
-  windowHeight = 9 * 200;
+  // windowWidth = displayMode.w / 2;
+  // windowHeight = displayMode.h / 2;
+  // windowWidth = 16 * 200;
+  // windowHeight = 9 * 200;
+  windowWidth = logicalWidth * 2;
+  windowHeight = logicalHeight * 2;
 
   window = SDL_CreateWindow(
       "Clowder Game Engine",
@@ -84,10 +90,13 @@ void Game::Initialize()
     Logger::Error("Failed to create SDL renderer");
     return;
   }
-  SDL_RenderSetScale(renderer, 2,  2);
+  //SDL_RenderSetScale(renderer, 2, 2);
+  SDL_RenderSetLogicalSize(renderer, logicalWidth, logicalHeight);
 
+  IMGUI_CHECKVERSION();
   ImGui::CreateContext();
-  ImGuiSDL::Initialize(renderer, windowWidth, windowHeight);
+  ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
+  ImGui_ImplSDLRenderer2_Init(renderer);
 
   // SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
@@ -250,12 +259,25 @@ void Game::ProcessInput()
     ImGui_ImplSDL2_ProcessEvent(&sdlEvent);
     ImGuiIO& io = ImGui::GetIO();
 
-    int mouseX, mouseY;
-    const int buttons = SDL_GetMouseState(&mouseX, &mouseY);
+    int mouse_x, mouse_y;
+    const int buttons = SDL_GetMouseState(&mouse_x, &mouse_y);
 
-    io.MousePos = ImVec2(mouseX, mouseY);
-    io.MouseDown[0] = buttons & SDL_BUTTON(SDL_BUTTON_LEFT);
-    io.MouseDown[1] = buttons & SDL_BUTTON(SDL_BUTTON_RIGHT);
+    int width, height;
+    SDL_GetWindowSize(window, &width, &height);
+    float scaled_x = (float)mouse_x / ((float)width / logicalWidth);
+    float scaled_y = (float)mouse_y / ((float)height / logicalHeight);
+
+    io.MousePos = ImVec2(scaled_x, scaled_y);
+
+    // Entity projectile = registry->CreateEntity();
+    // projectile.Group("projectiles");
+    // projectile.AddComponent<TransformComponent>(glm::vec2(scaled_x, scaled_y), glm::vec2(1.0), 0.0);
+    // projectile.AddComponent<SpriteComponent>("bullet-image", 4, 4, 4);
+    // projectile.AddComponent<ProjectileComponent>(true, 0, 1);
+
+    // io.MousePos = ImVec2(scaled_x, scaled_y);
+    // io.MouseDown[0] = buttons & SDL_BUTTON(SDL_BUTTON_LEFT);
+    // io.MouseDown[1] = buttons & SDL_BUTTON(SDL_BUTTON_RIGHT);
 
     switch (sdlEvent.type)
     {
@@ -314,6 +336,9 @@ void Game::Render()
 {
   SDL_SetRenderDrawColor(renderer, 10, 100, 50, 255);
   SDL_RenderClear(renderer);
+  ImGui_ImplSDLRenderer2_NewFrame();
+  ImGui_ImplSDL2_NewFrame();
+  ImGui::NewFrame();
 
   registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
   registry->GetSystem<RenderTextSystem>().Update(renderer, camera);
@@ -322,18 +347,19 @@ void Game::Render()
   {
     registry->GetSystem<DebugRenderColliderSystem>().Update(renderer, camera);
 
-    ImGui::NewFrame();
     ImGui::ShowDemoWindow();
-    ImGui::Render();
-    ImGuiSDL::Render(ImGui::GetDrawData());
   }
+
+  ImGui::Render();
+  ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), renderer);
 
   SDL_RenderPresent(renderer);
 }
 
 void Game::Destroy()
 {
-  ImGuiSDL::Deinitialize();
+  ImGui_ImplSDLRenderer2_Shutdown();
+  ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
   SDL_DestroyWindow(window);
   SDL_DestroyRenderer(renderer);
