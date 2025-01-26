@@ -27,8 +27,8 @@ int Game::windowWidth;
 int Game::windowHeight;
 int Game::mapWidth;
 int Game::mapHeight;
-int logicalWidth = 800;
-int logicalHeight = 600;
+// int Game::logicalWidth = 800;
+// int Game::logicalHeight = 600;
 
 Game::Game()
 {
@@ -63,12 +63,15 @@ void Game::Initialize()
 
   SDL_DisplayMode displayMode;
   SDL_GetCurrentDisplayMode(0, &displayMode);
-  // windowWidth = displayMode.w / 2;
-  // windowHeight = displayMode.h / 2;
+  windowWidth = displayMode.w / 2;
+  windowHeight = displayMode.h / 2;
   // windowWidth = 16 * 200;
   // windowHeight = 9 * 200;
-  windowWidth = logicalWidth * 2;
-  windowHeight = logicalHeight * 2;
+
+  // windowWidth = logicalWidth * 2;
+  // windowHeight = logicalHeight * 2;
+  // windowWidth = logicalWidth;
+  // windowHeight = logicalHeight;
 
   window = SDL_CreateWindow(
       "Clowder Game Engine",
@@ -91,7 +94,7 @@ void Game::Initialize()
     return;
   }
   //SDL_RenderSetScale(renderer, 2, 2);
-  SDL_RenderSetLogicalSize(renderer, logicalWidth, logicalHeight);
+  //SDL_RenderSetLogicalSize(renderer, logicalWidth, logicalHeight);
 
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
@@ -262,22 +265,13 @@ void Game::ProcessInput()
     int mouse_x, mouse_y;
     const int buttons = SDL_GetMouseState(&mouse_x, &mouse_y);
 
-    int width, height;
-    SDL_GetWindowSize(window, &width, &height);
-    float scaled_x = (float)mouse_x / ((float)width / logicalWidth);
-    float scaled_y = (float)mouse_y / ((float)height / logicalHeight);
-
-    io.MousePos = ImVec2(scaled_x, scaled_y);
-
-    // Entity projectile = registry->CreateEntity();
-    // projectile.Group("projectiles");
-    // projectile.AddComponent<TransformComponent>(glm::vec2(scaled_x, scaled_y), glm::vec2(1.0), 0.0);
-    // projectile.AddComponent<SpriteComponent>("bullet-image", 4, 4, 4);
-    // projectile.AddComponent<ProjectileComponent>(true, 0, 1);
+    // int width, height;
+    // SDL_GetWindowSize(window, &width, &height);
+    // float scaled_x = (float)mouse_x / ((float)width / logicalWidth);
+    // float scaled_y = (float)mouse_y / ((float)height / logicalHeight);
 
     // io.MousePos = ImVec2(scaled_x, scaled_y);
-    // io.MouseDown[0] = buttons & SDL_BUTTON(SDL_BUTTON_LEFT);
-    // io.MouseDown[1] = buttons & SDL_BUTTON(SDL_BUTTON_RIGHT);
+    io.MousePos = ImVec2(mouse_x, mouse_y);
 
     switch (sdlEvent.type)
     {

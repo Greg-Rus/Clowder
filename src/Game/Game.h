@@ -39,4 +39,6 @@ public:
     static int windowHeight;
     static int mapWidth;
     static int mapHeight;
+    // static int logicalWidth;
+    // static int logicalHeight;
 };
