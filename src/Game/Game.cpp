@@ -133,7 +133,9 @@ void Game::LoadLevel(int level)
   assetStore->AddTexture(renderer, "chopper-image", "./assets/images/chopper-spritesheet.png");
   assetStore->AddTexture(renderer, "radar-image", "./assets/images/radar.png");
   assetStore->AddTexture(renderer, "bullet-image", "./assets/images/bullet.png");
+  assetStore->AddTexture(renderer, "tree-image", "./assets/images/tree.png");
   assetStore->AddTexture(renderer, "jungle-map", "./assets/tilemaps/jungle.png");
+  
   assetStore->AddFont("charriot-font", "./assets/fonts/charriot.ttf", 14);
 
   LoadTileMap("./assets/tilemaps/jungle.map");
@@ -166,7 +168,7 @@ void Game::LoadLevel(int level)
   Entity tank = registry->CreateEntity();
   tank.Group("enemies");
   tank.AddComponent<TransformComponent>(glm::vec2(200.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
-  tank.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
+  tank.AddComponent<RigidBodyComponent>(glm::vec2(30.0, 0.0));
   tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 2);
   tank.AddComponent<BoxColliderComponent>(32, 32, glm::vec2(0));
   tank.AddComponent<ProjectileEmitterComponent>(glm::vec2(500,0), 1000, 3000, false, 10);
@@ -182,6 +184,19 @@ void Game::LoadLevel(int level)
   truck.AddComponent<HealthComponent>(100);
   truck.AddComponent<ProjectileEmitterComponent>(glm::vec2(500,0), 1000, 3000, false, 10);
   truck.AddComponent<HealthDisplayComponent>("charriot-font");
+
+  Entity treeA = registry->CreateEntity();
+  treeA.Group("obstacles");
+  treeA.AddComponent<TransformComponent>(glm::vec2(300.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
+  treeA.AddComponent<SpriteComponent>("tree-image", 16, 32, 2);
+  treeA.AddComponent<BoxColliderComponent>(16, 32, glm::vec2(0));
+
+  Entity treeB = registry->CreateEntity();
+  treeB.Group("obstacles");
+  treeB.AddComponent<TransformComponent>(glm::vec2(100.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
+  treeB.AddComponent<SpriteComponent>("tree-image", 16, 32, 2);
+  treeB.AddComponent<BoxColliderComponent>(16, 32, glm::vec2(0));
+
 
   Entity label = registry->CreateEntity();
   SDL_Color white = {255,255,255};
@@ -315,6 +330,7 @@ void Game::Update()
   registry->GetSystem<DamageSystem>().SubscribeToEvents(eventBus);
   registry->GetSystem<KeyboardControlSystem>().SubscribeToEvents(eventBus);
   registry->GetSystem<ProjectileEmitSystem>().SubscribeToEvents(eventBus);
+  registry->GetSystem<MovementSystem>().SubscribeToEvents(eventBus);
 
   registry->Update();
 

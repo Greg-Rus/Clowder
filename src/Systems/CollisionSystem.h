@@ -35,10 +35,10 @@ public:
                 bool collisionDetected = AreColliding(&*i, &*j);
                 if(collisionDetected)
                 {
-                    Logger::Log("Entity: " + 
-                    std::to_string(a.GetId()) +
-                    " collided with entity: " + 
-                    std::to_string(b.GetId()));
+                    // Logger::Log("Entity: " + 
+                    // std::to_string(a.GetId()) +
+                    // " collided with entity: " + 
+                    // std::to_string(b.GetId()));
                     eventBus->EmitEvent<CollisionEvent>(a, b);
                 }
             }
