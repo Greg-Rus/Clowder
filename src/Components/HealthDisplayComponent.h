@@ -1,5 +1,6 @@
 #pragma once
-#include "../Components/TextLabelComponent.h"
+//#include "../Components/TextLabelComponent.h"
+#include <SDL2/SDL.h>
 
 struct HealthDisplayComponent
 {
@@ -14,7 +15,3 @@ struct HealthDisplayComponent
         this->assetId = assetId;
     }
 };
-
-const SDL_Color HealthDisplayComponent::healthyColor = {0,255,0};
-const SDL_Color HealthDisplayComponent::damagedColor = {0,255,255};
-const SDL_Color HealthDisplayComponent::dyingColor = {255,0,0};

@@ -157,7 +157,7 @@ public:
             int index = size;
             entityIdToIndex.emplace(entityId, index);
             indexToEntityId.emplace(index, entityId);
-            if(index >= data.capacity())
+            if(index >= static_cast<int>(data.capacity()))
             {
                 data.resize(size * 2);
             }
@@ -344,7 +344,6 @@ bool Registry::HasComponent(Entity entity) const
 {
     const auto componentId = Component<TComponent>::GetId();
     const auto entityId = entity.GetId();
-    bool result = entityComponentSignatures[entityId].test(componentId);
 
     return entityComponentSignatures[entityId].test(componentId);
 }

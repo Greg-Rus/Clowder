@@ -32,7 +32,6 @@ public:
     void Update();
     void Render();
     void Setup();
-    void LoadLevel(int level);
     void LoadTileMap(const std::string& path);
 
     static int windowWidth;
